@@ -1,9 +1,11 @@
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import rcParams
 from matplotlib.font_manager import FontProperties
 from matplotlib import cm
 import numpy as np
+from matplotlib.patches import Polygon
 
 # 設定全局字體 (使用 Microsoft JhengHei)
 font_path = 'C:/Windows/Fonts/msjh.ttc'
@@ -52,13 +54,13 @@ ax2 = ax1.twinx()
 sns.lineplot(x=np.arange(len(semesters)), y=ranks_percent, marker='s', color=rank_color, markersize=12, linewidth=3, ax=ax2, linestyle='--', legend=False)
 ax2.set_ylabel('系排名 (%)', color=rank_color, fontsize=18, fontproperties=font_prop)
 ax2.tick_params(axis='y', labelcolor=rank_color)
-ax2.set_ylim(0, 50)  # 將下限設為 -5，增加下方空間
+ax2.set_ylim(-5, 50)  # 將下限設為 -5，增加下方空間
 
 # 在系排名曲線上添加標註（包含名次和百分比）
 for i, rank in enumerate(ranks_percent):
     # 根據數據點的位置調整標註的垂直偏移，避免重疊
     if rank <= 5:
-        offset = 15  # 對於靠近底部的點，將標註上移
+        offset = 15  # 將標註上移
     else:
         offset = -15 if i % 2 == 0 else 15
     ax2.annotate(rank_annotations[i], xy=(i, rank), xytext=(0, offset), textcoords='offset points',
@@ -80,9 +82,6 @@ ax1.legend(handles=custom_lines, loc='upper center', bbox_to_anchor=(0.5, 1.12),
 ax1.grid(True, linestyle='--', linewidth=0.5, color='gray', alpha=0.7)
 
 # 添加漸變陰影效果
-from matplotlib.patches import Polygon
-
-# GPA 曲線下方的漸變
 gpa_gradient = np.linspace(0, 1, len(gpa_scores))
 gpa_colors = [cm.get_cmap('Blues')(x) for x in gpa_gradient]
 for i in range(len(gpa_scores)-1):
@@ -91,10 +90,9 @@ for i in range(len(gpa_scores)-1):
         (i+1, gpa_scores[i+1]),
         (i+1, ax1.get_ylim()[0]),
         (i, ax1.get_ylim()[0])
-    ], facecolor=gpa_colors[i], alpha=0.3)
+    ], facecolor=gpa_colors[i], edgecolor='none', alpha=0.3)
     ax1.add_patch(polygon)
 
-# 排名曲線下方的漸變
 rank_gradient = np.linspace(0, 1, len(ranks_percent))
 rank_colors = [cm.get_cmap('Purples')(x) for x in rank_gradient]
 for i in range(len(ranks_percent)-1):
@@ -103,11 +101,17 @@ for i in range(len(ranks_percent)-1):
         (i+1, ranks_percent[i+1]),
         (i+1, ax2.get_ylim()[0]),
         (i, ax2.get_ylim()[0])
-    ], facecolor=rank_colors[i], alpha=0.3)
+    ], facecolor=rank_colors[i], edgecolor='none', alpha=0.3)
     ax2.add_patch(polygon)
 
 # 調整圖表邊距，防止圖例被截斷
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-# 顯示圖表
+# 在保存圖片之前，檢查目錄是否存在，若不存在則創建
+output_dir = 'images'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# 保存圖片
+plt.savefig(os.path.join(output_dir, 'academic_performance.png'), dpi=300, bbox_inches='tight')
 plt.show()
