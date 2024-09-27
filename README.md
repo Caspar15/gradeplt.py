@@ -114,7 +114,7 @@
 
 ## 效果展示
 
-![學業成績曲線圖](path_to_your_image.png)
+![學業成績曲線圖](爬蟲\gradeplt\images\academic_performance.png)
 
 *圖：學業成績曲線圖示例*
 
